@@ -1,10 +1,15 @@
 # catppuccin-kvantum-flake
 
-Standalone flake that fetches the public
-[`catppuccin/kvantum`](https://github.com/catppuccin/kvantum) repository and
-installs the upstream `themes/` directory into `share/Kvantum`.
+Standalone flake for packaging the upstream
+[`catppuccin/kvantum`](https://github.com/catppuccin/kvantum) themes.
 
-## What it exposes
+It fetches the upstream repository and installs `themes/` into:
+
+```text
+$out/share/Kvantum
+```
+
+## Exposed outputs
 
 - `packages.<system>.default`
 - `packages.<system>.catppuccin-kvantum`
@@ -13,9 +18,12 @@ installs the upstream `themes/` directory into `share/Kvantum`.
 - `nixosModules.default`
 - `formatter.<system>`
 
-## Usage
+## Supported systems
 
-Add the flake as an input:
+- `x86_64-linux`
+- `aarch64-linux`
+
+## Add as an input
 
 ```nix
 {
@@ -23,7 +31,11 @@ Add the flake as an input:
 }
 ```
 
-Install the package directly:
+## Usage
+
+### Install the package directly
+
+For NixOS:
 
 ```nix
 {
@@ -33,38 +45,53 @@ Install the package directly:
 }
 ```
 
-Or use the overlay:
+For Home Manager:
 
 ```nix
 {
-  nixpkgs.overlays = [inputs.catppuccin-kvantum.overlays.default];
-
-  environment.systemPackages = [pkgs.catppuccin-kvantum];
+  home.packages = [
+    inputs.catppuccin-kvantum.packages.${pkgs.system}.default
+  ];
 }
 ```
 
-Home Manager module:
+### Use the overlay
 
 ```nix
 {
-  imports = [inputs.catppuccin-kvantum.homeManagerModules.default];
+  nixpkgs.overlays = [ inputs.catppuccin-kvantum.overlays.default ];
+
+  environment.systemPackages = [ pkgs.catppuccin-kvantum ];
+}
+```
+
+### Use the Home Manager module
+
+```nix
+{
+  imports = [ inputs.catppuccin-kvantum.homeManagerModules.default ];
 
   programs.catppuccin-kvantum.enable = true;
 }
 ```
 
-NixOS module:
+This module adds the packaged themes to `home.packages`.
+
+### Use the NixOS module
 
 ```nix
 {
-  imports = [inputs.catppuccin-kvantum.nixosModules.default];
+  imports = [ inputs.catppuccin-kvantum.nixosModules.default ];
 
   programs.catppuccin-kvantum.enable = true;
 }
 ```
+
+This module adds the packaged themes to `environment.systemPackages`.
 
 ## Notes
 
-- This flake packages themes only. It does not configure Kvantum Manager,
-  `kvantummanager`, `qt6ct`, or choose an active theme for you.
-- The theme files land in the standard profile path under `share/Kvantum`.
+- This flake packages themes only.
+- It does not install or configure `kvantummanager`.
+- It does not configure `qt5ct`, `qt6ct`, or select an active Kvantum theme.
+- Installed theme files are available under the standard profile path `share/Kvantum`.
